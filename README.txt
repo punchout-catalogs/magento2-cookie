@@ -1,4 +1,4 @@
-composer require punchout-catalogs/magento2-cookie master
+composer require punchout-catalogs/magento2-cookie dev-master
 
 OR
 
