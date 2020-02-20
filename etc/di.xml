@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Cookie Fixes -->
+    <preference for="Magento\Framework\Stdlib\CookieManagerInterface" type="Punchout\Cookie\Framework\Stdlib\Cookie\PhpCookieManager" />
+
+    <type name="Magento\Framework\Session\SessionManagerInterface">
+        <plugin name="punchout_gateway_framework_session_manager" type="Punchout\Cookie\Plugin\Framework\Session\SessionManager" sortOrder="1000" />
+    </type>
+
+    <type name="Magento\Framework\Data\Form\FormKey\Validator">
+        <plugin name="punchout_gateway_framework_form_key_validator" type="Punchout\Cookie\Plugin\Framework\Data\Form\FormKey\Validator" sortOrder="1000" />
+    </type>
+    <!-- /Cookie Fixes -->
+</config>

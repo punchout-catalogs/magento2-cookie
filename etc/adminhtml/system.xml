@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="web">
+            <group id="cookie">
+
+                <field id="cookie_use_same_site_none" translate="label" type="select" sortOrder="510" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Use Cookie `SameSite=None`</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="cookie_force_secure" translate="label" type="select" sortOrder="520" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Cookie Force Secure</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends><field id="cookie_use_same_site_none">1</field></depends>
+                </field>
+
+                <field id="cookie_same_site_blacklist" translate="label comment" type="textarea" sortOrder="530" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Cookie `SameSite=None` UserAgent Blacklist</label>
+                    <depends><field id="cookie_use_same_site_none">1</field></depends>
+                    <comment>List of blacklist RegEx patterns separated by new line. Use [AND] to add and condition. Example: Macintosh[AND]Safari</comment>
+                </field>
+
+            </group>
+        </section>
+    </system>
+</config>
