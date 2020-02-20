@@ -6,9 +6,5 @@
     <type name="Magento\Framework\Session\SessionManagerInterface">
         <plugin name="punchout_gateway_framework_session_manager" type="Punchout\Cookie\Plugin\Framework\Session\SessionManager" sortOrder="1000" />
     </type>
-
-    <type name="Magento\Framework\Data\Form\FormKey\Validator">
-        <plugin name="punchout_gateway_framework_form_key_validator" type="Punchout\Cookie\Plugin\Framework\Data\Form\FormKey\Validator" sortOrder="1000" />
-    </type>
     <!-- /Cookie Fixes -->
 </config>
