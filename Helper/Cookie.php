@@ -57,6 +57,11 @@ class Cookie
         }
 
         $params['path'] = $this->attachSameSiteParam($params['path']);
+    
+        //Update Secure
+        if ($this->isForceSecureEnabled()) {
+            $params['secure'] = true;
+        }
 
         session_set_cookie_params(
             $params['lifetime'],
