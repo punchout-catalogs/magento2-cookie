@@ -51,29 +51,45 @@ class Cookie
             return $this;
         }
 
-        $params['path'] = empty($params['path']) ? '/' : $params['path'];
         if (!$this->canSendCookieSameSiteNone($params['path'])) {
             return $this;
         }
 
-        $params['path'] = $this->attachSameSiteParam($params['path']);
-    
+        if ($this->isPhpCookieOptionsSupported()) {
+            $params['samesite'] = 'None';
+        } else {
+            $params['path'] = empty($params['path']) ? '/' : $params['path'];
+            $params['path'] = $this->attachSameSiteParam($params['path']);
+        }
+
         //Update Secure
         if ($this->isForceSecureEnabled()) {
             $params['secure'] = true;
         }
 
-        session_set_cookie_params(
-            $params['lifetime'],
-            $params['path'],
-            $params['domain'],
-            !empty($params['secure']),
-            !empty($params['httponly'])
-        );
-
-        return $this;
+        return $this->_updateCookieParams($params);
     }
     
+    protected function _updateCookieParams(array $params)
+    {
+        try {
+            if ($this->isPhpCookieOptionsSupported()) {
+                session_set_cookie_params($params);
+            } else {
+                session_set_cookie_params(
+                    $params['lifetime'],
+                    $params['path'],
+                    $params['domain'],
+                    !empty($params['secure']),
+                    !empty($params['httponly'])
+                );
+            }
+        } catch (\Exception $e) {
+            //silently catch an error
+        }
+        return $this;
+    }
+
     /**
      * Hot-fix for Chrome + other new versions of diff. browsers
      *
@@ -91,13 +107,17 @@ class Cookie
         }
         
         //Update Path
-        $metadata['path'] = $this->attachSameSiteParam($origPath);
+        if ($this->isPhpCookieOptionsSupported()) {
+            $metadata['samesite'] = 'None';
+        } else {
+            $metadata['path'] = $this->attachSameSiteParam($origPath);
+        }
 
         //Update Secure
         if ($this->isForceSecureEnabled()) {
             $metadata[\Magento\Framework\Stdlib\Cookie\CookieMetadata::KEY_SECURE] = true;
         }
-        
+
         return $metadata;
     }
 
@@ -162,6 +182,11 @@ class Cookie
     protected function isForceSecureEnabled()
     {
         return (bool)$this->getConfigValue(static::PATH_FORCE_SECURE, $this->getStoreId());
+    }
+    
+    public function isPhpCookieOptionsSupported()
+    {
+        return version_compare(PHP_VERSION, "7.3.0", ">=");
     }
     
     protected function isBlackListed($input)

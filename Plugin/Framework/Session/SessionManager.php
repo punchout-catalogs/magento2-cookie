@@ -26,7 +26,9 @@ class SessionManager
      */
     public function beforeStart($subject)
     {
-        $this->cookieHelper->updateCookieParams();
+        if (!$subject->isSessionExists()) {
+            $this->cookieHelper->updateCookieParams();
+        }
         return [];
     }
     
@@ -37,7 +39,9 @@ class SessionManager
      */
     public function beforeRegenerateId($subject)
     {
-        $this->cookieHelper->updateCookieParams();
+        if (!$subject->isSessionExists()) {
+            $this->cookieHelper->updateCookieParams();
+        }
         return [];
     }
 }
