@@ -57,9 +57,19 @@ class Cookie
 
         if ($this->isPhpCookieOptionsSupported()) {
             $params['samesite'] = 'None';
+
+            //try to guess future implementation in M2
+            $this->getSessionConfig()->setSamesite('None');
+            $this->getSessionConfig()->setSameSite('None');
         } else {
             $params['path'] = empty($params['path']) ? '/' : $params['path'];
             $params['path'] = $this->attachSameSiteParam($params['path']);
+
+            $path = $this->getSessionConfig()->getCookiePath();
+            $path = $this->attachSameSiteParam($path ? $path : '/');
+
+            //CE 2.1 fix
+            $this->getSessionConfig()->setCookiePath($path);
         }
 
         //Update Secure
@@ -85,6 +95,7 @@ class Cookie
                 );
             }
         } catch (\Exception $e) {
+            var_dump($e->getMessage());exit;
             //silently catch an error
         }
         return $this;
@@ -143,7 +154,9 @@ class Cookie
     
     public function attachSameSiteParam($path = '/')
     {
-        $path .= '; SameSite=None';
+        if ((strpos($path, 'SameSite') === false) && (strpos($path, 'samesite') === false)) {
+            $path.= '; SameSite=None';
+        }
         return $path;
     }
     
@@ -172,6 +185,14 @@ class Cookie
     protected function getAppState()
     {
         return $this->objectManager->get(\Magento\Framework\App\State::class);
+    }
+    
+    /**
+     * @return \Magento\Framework\Session\Config\ConfigInterface
+     */
+    protected function getSessionConfig()
+    {
+        return $this->objectManager->get(\Magento\Framework\Session\Config\ConfigInterface::class);
     }
     
     protected function isSameSiteNoneEnabled()
