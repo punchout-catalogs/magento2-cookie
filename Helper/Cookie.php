@@ -31,6 +31,8 @@ class Cookie
      */
     protected $storeManager;
     
+    protected $alreadyUpdated = false;
+    
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\HTTP\Header $headerService,
@@ -51,14 +53,14 @@ class Cookie
             return $this;
         }
 
-        if (!$this->canSendCookieSameSiteNone()) {
+        if (!$this->canSendCookieSameSiteNone() || $this->alreadyUpdated) {
             return $this;
         }
 
         if ($this->isPhpCookieOptionsSupported()) {
             $params['samesite'] = 'None';
 
-            //try to guess future implementation in M2
+            //an attempt to guess future implementation in M2
             $this->getSessionConfig()->setSamesite('None');
             $this->getSessionConfig()->setSameSite('None');
         } else {
@@ -97,6 +99,8 @@ class Cookie
                     !empty($params['httponly'])
                 );
             }
+
+            $this->alreadyUpdated = true;
         } catch (\Exception $e) {
             //silently catch an error
         }
