@@ -51,7 +51,7 @@ class Cookie
             return $this;
         }
 
-        if (!$this->canSendCookieSameSiteNone($params['path'])) {
+        if (!$this->canSendCookieSameSiteNone()) {
             return $this;
         }
 
@@ -75,6 +75,9 @@ class Cookie
         //Update Secure
         if ($this->isForceSecureEnabled()) {
             $params['secure'] = true;
+
+            //CE 2.1 fix
+            $this->getSessionConfig()->setCookieSecure(true);
         }
 
         return $this->_updateCookieParams($params);
@@ -95,7 +98,6 @@ class Cookie
                 );
             }
         } catch (\Exception $e) {
-            var_dump($e->getMessage());exit;
             //silently catch an error
         }
         return $this;
@@ -113,7 +115,7 @@ class Cookie
             ? $metadata[\Magento\Framework\Stdlib\Cookie\CookieMetadata::KEY_PATH]
             : '/';
         
-        if (null === $metadata || !$this->canSendCookieSameSiteNone($origPath)) {
+        if (null === $metadata || !$this->canSendCookieSameSiteNone()) {
             return $metadata;
         }
         
@@ -133,17 +135,11 @@ class Cookie
     }
 
     /**
-     * @param string $path
-     *
      * @return bool
      */
-    public function canSendCookieSameSiteNone($path)
+    public function canSendCookieSameSiteNone()
     {
         if (!$this->isFrontend() || !$this->isSameSiteNoneEnabled()) {
-            return false;
-        }
-
-        if ($path && strpos(strtolower($path), 'samesite=') !== false) {
             return false;
         }
         
