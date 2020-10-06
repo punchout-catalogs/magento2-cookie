@@ -154,7 +154,7 @@ class Cookie
     
     public function attachSameSiteParam($path = '/')
     {
-        if ((strpos($path, 'SameSite') === false) && (strpos($path, 'samesite') === false)) {
+        if (strpos($path, 'SameSite') === false) {
             $path.= '; SameSite=None';
         }
         return $path;
