@@ -31,8 +31,6 @@ class Cookie
      */
     protected $storeManager;
     
-    protected $alreadyUpdated = false;
-    
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\HTTP\Header $headerService,
@@ -48,12 +46,12 @@ class Cookie
 
     public function updateCookieParams()
     {
-        $params = session_get_cookie_params();
-        if (empty($params)) {
+        if (!$this->canSendCookieSameSiteNone()) {
             return $this;
         }
 
-        if (!$this->canSendCookieSameSiteNone() || $this->alreadyUpdated) {
+        $params = session_get_cookie_params();
+        if (empty($params)) {
             return $this;
         }
 
@@ -99,8 +97,6 @@ class Cookie
                     !empty($params['httponly'])
                 );
             }
-
-            $this->alreadyUpdated = true;
         } catch (\Exception $e) {
             //silently catch an error
         }
