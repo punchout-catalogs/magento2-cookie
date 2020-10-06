@@ -58,9 +58,9 @@ class Cookie
         if ($this->isPhpCookieOptionsSupported()) {
             $params['samesite'] = 'None';
 
-            //an attempt to guess future implementation in M2
-            $this->getSessionConfig()->setSamesite('None');
-            $this->getSessionConfig()->setSameSite('None');
+            //an attempt to guess future implementation in M2, maybe in M2.4 or later
+            //$this->getSessionConfig()->setSamesite('None');
+            //$this->getSessionConfig()->setSameSite('None');
         } else {
             $params['path'] = empty($params['path']) ? '/' : $params['path'];
             $params['path'] = $this->attachSameSiteParam($params['path']);
