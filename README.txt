@@ -5,4 +5,4 @@ OR
 composer require punchout-catalogs/magento2-cookie release-version
 
 Example:
-composer require punchout-catalogs/magento2-cookie 0.10.0
+composer require punchout-catalogs/magento2-cookie 0.11.0
