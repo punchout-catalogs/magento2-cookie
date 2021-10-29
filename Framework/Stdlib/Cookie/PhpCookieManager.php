@@ -14,9 +14,9 @@ class PhpCookieManager
         if (!$this->getCookieHelper()->isPhpCookieOptionsSupported()) {
             return parent::setCookie($name, $value, $metadataArray);
         }
-        
+
         $options = $this->toCookieOptions($metadataArray);
-        
+
         $phpSetcookieSuccess = setcookie($name, $value, $options);
 
         if (!$phpSetcookieSuccess) {
@@ -34,7 +34,7 @@ class PhpCookieManager
 
         return $this;
     }
-    
+
     /**
      * @return \Punchout\Cookie\Helper\Cookie
      */
@@ -50,17 +50,19 @@ class PhpCookieManager
     {
         return \Magento\Framework\App\ObjectManager::getInstance();
     }
-    
+
     protected function toCookieOptions(array $metadataArray)
     {
         $options = array (
             'expires' => $this->computeExpirationTime($metadataArray),
-            'path' => $this->extractValue(CookieMetadata::KEY_PATH, $metadataArray, ''),
+            'path' => $this->sanitizeValue(
+                $this->extractValue(CookieMetadata::KEY_PATH, $metadataArray, '')
+            ),
             'domain' => $this->extractValue(CookieMetadata::KEY_DOMAIN, $metadataArray, ''),
             'secure' => $this->extractValue(CookieMetadata::KEY_SECURE, $metadataArray, false),
             'httponly' => $this->extractValue(CookieMetadata::KEY_HTTP_ONLY, $metadataArray, false),
         );
-    
+
         $samesite = $this->extractValue('samesite', $metadataArray, '');
         if ($samesite) {
             $options['samesite'] = $samesite;
@@ -68,7 +70,7 @@ class PhpCookieManager
 
         return $options;
     }
-    
+
     /**
      * Make protected, which is private in the parent class
      *
@@ -90,10 +92,10 @@ class PhpCookieManager
                 $expireTime = PhpCookieManager::EXPIRE_AT_END_OF_SESSION_TIME;
             }
         }
-        
+
         return $expireTime;
     }
-    
+
     /**
      * Make protected, which is private in the parent class
      *
@@ -112,5 +114,28 @@ class PhpCookieManager
         } else {
             return $defaultValue;
         }
+    }
+
+    protected $fixSymbols = array(
+        '014', '013', 't', 'r', 'n'
+    );
+
+    /**
+     * Hot-fix for `Cookie paths cannot contain any of the following ',; \\t\\r\\n\\013\\014'`
+     * @param null $v
+     *
+     * @return mixed|string|null
+     */
+    protected function sanitizeValue($v = null)
+    {
+        if (!is_string($v)) {
+            return $v;
+        }
+
+        foreach ($this->fixSymbols as $s) {
+            $v = str_replace(['\\\\' . $s, '\\' . $s], '', $v);
+        }
+
+        return trim($v);
     }
 }
