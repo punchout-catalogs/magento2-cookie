@@ -108,41 +108,9 @@ class PhpCookieManager
     protected function extractValue($parameter, array $metadataArray, $defaultValue)
     {
         if (array_key_exists($parameter, $metadataArray)) {
-            $v = $metadataArray[$parameter];
+            return $metadataArray[$parameter];
         } else {
-            $v = $defaultValue;
+            return $defaultValue;
         }
-
-        //----------------------------------------------------------------------//
-        //hot-fix for: Warning: Cookie paths cannot contain any of the following ',; \\t\\r\\n\\013\\014'
-        if ($parameter === CookieMetadata::KEY_PATH) {
-            $v = $this->sanitizeValue($v);
-        }
-        //----------------------------------------------------------------------//
-
-        return  $v;
-    }
-
-    protected $fixSymbols = array(
-        '014', '013', 't', 'r', 'n'
-    );
-
-    /**
-     * Hot-fix for `Cookie paths cannot contain any of the following ',; \\t\\r\\n\\013\\014'`
-     * @param null $v
-     *
-     * @return mixed|string|null
-     */
-    protected function sanitizeValue($v = null)
-    {
-        if (!is_string($v)) {
-            return $v;
-        }
-
-        foreach ($this->fixSymbols as $s) {
-            $v = str_replace(['\\\\' . $s, '\\' . $s], '', $v);
-        }
-
-        return trim($v);
     }
 }

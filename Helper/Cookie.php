@@ -10,27 +10,27 @@ class Cookie
     const PATH_USE_SAMESITE_NONE  = 'web/cookie/cookie_use_same_site_none';
     const PATH_FORCE_SECURE  = 'web/cookie/cookie_force_secure';
     const PATH_SAMESITE_NONE_BLACKLIST  = 'web/cookie/cookie_same_site_blacklist';
-    
+
     /**
      * @var \Magento\Framework\ObjectManagerInterface
      */
     protected $objectManager;
-    
+
     /**
      * @var \Magento\Framework\HTTP\Header
      */
     protected $headerService;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     protected $storeManager;
-    
+
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Framework\HTTP\Header $headerService,
@@ -58,9 +58,10 @@ class Cookie
         if ($this->isPhpCookieOptionsSupported()) {
             $params['samesite'] = 'None';
 
-            //an attempt to guess future implementation in M2, maybe in M2.4 or later
-            //$this->getSessionConfig()->setSamesite('None');
-            //$this->getSessionConfig()->setSameSite('None');
+            //Support for Magento version 2.4.3
+            if (is_callable($this->getSessionConfig(), 'setCookieSameSite')) {
+                $this->getSessionConfig()->setCookieSameSite('None');
+            }
         } else {
             $params['path'] = empty($params['path']) ? '/' : $params['path'];
             $params['path'] = $this->attachSameSiteParam($params['path']);
@@ -82,7 +83,7 @@ class Cookie
 
         return $this->_updateCookieParams($params);
     }
-    
+
     protected function _updateCookieParams(array $params)
     {
         try {
@@ -114,11 +115,11 @@ class Cookie
         $origPath = !empty($metadata[\Magento\Framework\Stdlib\Cookie\CookieMetadata::KEY_PATH])
             ? $metadata[\Magento\Framework\Stdlib\Cookie\CookieMetadata::KEY_PATH]
             : '/';
-        
+
         if (null === $metadata || !$this->canSendCookieSameSiteNone()) {
             return $metadata;
         }
-        
+
         //Update Path
         if ($this->isPhpCookieOptionsSupported()) {
             $metadata['samesite'] = 'None';
@@ -142,12 +143,12 @@ class Cookie
         if (!$this->isFrontend() || !$this->isSameSiteNoneEnabled()) {
             return false;
         }
-        
+
         $agent = $this->headerService->getHttpUserAgent();
 
         return !($agent && $this->isBlackListed($agent));
     }
-    
+
     public function attachSameSiteParam($path = '/')
     {
         if (strpos($path, 'SameSite') === false) {
@@ -155,17 +156,17 @@ class Cookie
         }
         return $path;
     }
-    
+
     protected function getConfigValue($path, $storeId = null)
     {
         return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
-    
+
     protected function getStoreId()
     {
         return $this->storeManager->getStore()->getId();
     }
-    
+
     protected function isFrontend()
     {
         try {
@@ -182,7 +183,7 @@ class Cookie
     {
         return $this->objectManager->get(\Magento\Framework\App\State::class);
     }
-    
+
     /**
      * @return \Magento\Framework\Session\Config\ConfigInterface
      */
@@ -190,22 +191,22 @@ class Cookie
     {
         return $this->objectManager->get(\Magento\Framework\Session\Config\ConfigInterface::class);
     }
-    
+
     protected function isSameSiteNoneEnabled()
     {
         return (bool)$this->getConfigValue(static::PATH_USE_SAMESITE_NONE, $this->getStoreId());
     }
-    
+
     protected function isForceSecureEnabled()
     {
         return (bool)$this->getConfigValue(static::PATH_FORCE_SECURE, $this->getStoreId());
     }
-    
+
     public function isPhpCookieOptionsSupported()
     {
         return version_compare(PHP_VERSION, "7.3.0", ">=");
     }
-    
+
     protected function isBlackListed($input)
     {
         $patterns = (string)$this->getConfigValue(static::PATH_SAMESITE_NONE_BLACKLIST, $this->getStoreId());
@@ -213,16 +214,16 @@ class Cookie
         $patterns = explode("\n", $patterns);
         $patterns = array_map("trim", $patterns);
         $patterns = array_filter($patterns);
-        
+
         if (empty($patterns)) {
             return false;
         }
-        
+
         foreach ($patterns as $pattern) {
             $pattern = explode("[AND]", $pattern);
             $pattern = array_map("trim", $pattern);
             $pattern = array_filter($pattern);
-            
+
             $allMatched = true;
             foreach ($pattern as $_pattern) {
                 if (!preg_match("~" . $_pattern . "~", $input)) {
@@ -230,12 +231,12 @@ class Cookie
                     break;
                 }
             }
-            
+
             if ($allMatched) {
                 return true;
             }
         }
-        
+
         return false;
     }
 }
