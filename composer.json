@@ -2,7 +2,7 @@
     "name": "punchout-catalogs/magento2-cookie",
     "description": "PunchOut Cookie Extension",
     "type": "magento2-module",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
