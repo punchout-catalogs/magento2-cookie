@@ -55,9 +55,7 @@ class PhpCookieManager
     {
         $options = array (
             'expires' => $this->computeExpirationTime($metadataArray),
-            'path' => $this->sanitizeValue(
-                $this->extractValue(CookieMetadata::KEY_PATH, $metadataArray, '')
-            ),
+            'path' => $this->extractValue(CookieMetadata::KEY_PATH, $metadataArray, ''),
             'domain' => $this->extractValue(CookieMetadata::KEY_DOMAIN, $metadataArray, ''),
             'secure' => $this->extractValue(CookieMetadata::KEY_SECURE, $metadataArray, false),
             'httponly' => $this->extractValue(CookieMetadata::KEY_HTTP_ONLY, $metadataArray, false),
@@ -110,10 +108,19 @@ class PhpCookieManager
     protected function extractValue($parameter, array $metadataArray, $defaultValue)
     {
         if (array_key_exists($parameter, $metadataArray)) {
-            return $metadataArray[$parameter];
+            $v = $metadataArray[$parameter];
         } else {
-            return $defaultValue;
+            $v = $defaultValue;
         }
+
+        //----------------------------------------------------------------------//
+        //hot-fix for: Warning: Cookie paths cannot contain any of the following ',; \\t\\r\\n\\013\\014'
+        if ($parameter === CookieMetadata::KEY_PATH) {
+            $v = $this->sanitizeValue($v);
+        }
+        //----------------------------------------------------------------------//
+
+        return  $v;
     }
 
     protected $fixSymbols = array(
