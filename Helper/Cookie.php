@@ -59,7 +59,7 @@ class Cookie
             $params['samesite'] = 'None';
 
             //Support for Magento version 2.4.3
-            if (is_callable($this->getSessionConfig(), 'setCookieSameSite')) {
+            if (method_exists($this->getSessionConfig(), 'setCookieSameSite')) {
                 $this->getSessionConfig()->setCookieSameSite('None');
             }
         } else {
@@ -100,7 +100,7 @@ class Cookie
             }
 
             //Support for Magento version 2.4.3
-            if (is_callable($this->getSessionConfig(), 'setOption')) {
+            if (method_exists($this->getSessionConfig(), 'setCookieSameSite')) {
                 $this->getSessionConfig()->setOption('session.cookie_samesite', $params['samesite']);
             }
         } catch (\Exception $e) {
@@ -191,7 +191,7 @@ class Cookie
     }
 
     /**
-     * @return \Magento\Framework\Session\Config\ConfigInterface
+     * @return \Magento\Framework\Session\Config
      */
     protected function getSessionConfig()
     {

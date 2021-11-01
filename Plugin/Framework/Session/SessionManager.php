@@ -8,7 +8,7 @@ class SessionManager
      * @var \Punchout\Cookie\Helper\Cookie
      */
     protected $cookieHelper;
-    
+
     /**
      * SessionManager constructor.
      *
@@ -31,7 +31,7 @@ class SessionManager
         }
         return [];
     }
-    
+
     /**
      * @param \Magento\Framework\Session\SessionManager $subject
      *
@@ -44,7 +44,7 @@ class SessionManager
         }
         return [];
     }
-    
+
     /**
      * @param \Magento\Framework\Session\SessionManager $subject
      * @param \Closure $proceed
