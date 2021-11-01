@@ -98,9 +98,15 @@ class Cookie
                     !empty($params['httponly'])
                 );
             }
+
+            //Support for Magento version 2.4.3
+            if (is_callable($this->getSessionConfig(), 'setOption')) {
+                $this->getSessionConfig()->setOption('session.cookie_samesite', $params['samesite']);
+            }
         } catch (\Exception $e) {
             //silently catch an error
         }
+
         return $this;
     }
 
