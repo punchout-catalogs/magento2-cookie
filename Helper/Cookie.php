@@ -175,7 +175,6 @@ class Cookie
 
     protected function isFrontend()
     {
-        return true;
         try {
             return $this->getAppState()->getAreaCode() == \Magento\Framework\App\Area::AREA_FRONTEND;
         } catch (\Exception $e) {
