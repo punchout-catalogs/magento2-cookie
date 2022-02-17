@@ -55,6 +55,14 @@ class Cookie
             return $this;
         }
 
+        //Update Secure
+        if ($this->isForceSecureEnabled()) {
+            $params['secure'] = true;
+
+            //CE 2.1 fix
+            $this->getSessionConfig()->setCookieSecure(true);
+        }
+
         if ($this->isPhpCookieOptionsSupported()) {
             $params['samesite'] = 'None';
 
@@ -71,14 +79,6 @@ class Cookie
 
             //CE 2.1 fix
             $this->getSessionConfig()->setCookiePath($path);
-        }
-
-        //Update Secure
-        if ($this->isForceSecureEnabled()) {
-            $params['secure'] = true;
-
-            //CE 2.1 fix
-            $this->getSessionConfig()->setCookieSecure(true);
         }
 
         return $this->_updateCookieParams($params);
@@ -175,6 +175,7 @@ class Cookie
 
     protected function isFrontend()
     {
+        return true;
         try {
             return $this->getAppState()->getAreaCode() == \Magento\Framework\App\Area::AREA_FRONTEND;
         } catch (\Exception $e) {
