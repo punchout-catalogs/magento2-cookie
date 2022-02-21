@@ -1,4 +1,4 @@
-Punchout_Cookie module allows Magento2 to work in iframe by setting SameSite=Note to an each cookie.
+Punchout_Cookie module allows Magento2 untill `2.4.3` version to work in iframe by setting `SameSite=Note` parameter to cookies.
 
 
 Installation:
