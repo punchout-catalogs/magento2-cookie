@@ -6,5 +6,10 @@
                 <argument name="template" xsi:type="string">Punchout_Cookie::js/cookie.phtml</argument>
             </action>
         </referenceBlock>
+        <referenceBlock name="cookie_config">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Punchout_Cookie::html/cookie.phtml</argument>
+            </action>
+        </referenceBlock>
     </body>
 </page>

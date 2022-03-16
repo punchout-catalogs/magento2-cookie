@@ -7,10 +7,6 @@ namespace Punchout\Cookie\Helper;
  */
 class Cookie
 {
-    const PATH_USE_SAMESITE_NONE  = 'web/cookie/cookie_use_same_site_none';
-    const PATH_FORCE_SECURE  = 'web/cookie/cookie_force_secure';
-    const PATH_SAMESITE_NONE_BLACKLIST  = 'web/cookie/cookie_same_site_blacklist';
-
     /**
      * @var \Magento\Framework\ObjectManagerInterface
      */
@@ -146,13 +142,7 @@ class Cookie
      */
     public function canSendCookieSameSiteNone()
     {
-        if (!$this->isFrontend() || !$this->isSameSiteNoneEnabled()) {
-            return false;
-        }
-
-        $agent = $this->headerService->getHttpUserAgent();
-
-        return !($agent && $this->isBlackListed($agent));
+        return ($this->isFrontend() && $this->isSameSiteNoneEnabled());
     }
 
     public function attachSameSiteParam($path = '/')
@@ -200,49 +190,16 @@ class Cookie
 
     protected function isSameSiteNoneEnabled()
     {
-        return (bool)$this->getConfigValue(static::PATH_USE_SAMESITE_NONE, $this->getStoreId());
+        return true;
     }
 
     protected function isForceSecureEnabled()
     {
-        return (bool)$this->getConfigValue(static::PATH_FORCE_SECURE, $this->getStoreId());
+        return true;
     }
 
     public function isPhpCookieOptionsSupported()
     {
         return version_compare(PHP_VERSION, "7.3.0", ">=");
-    }
-
-    protected function isBlackListed($input)
-    {
-        $patterns = (string)$this->getConfigValue(static::PATH_SAMESITE_NONE_BLACKLIST, $this->getStoreId());
-
-        $patterns = explode("\n", $patterns);
-        $patterns = array_map("trim", $patterns);
-        $patterns = array_filter($patterns);
-
-        if (empty($patterns)) {
-            return false;
-        }
-
-        foreach ($patterns as $pattern) {
-            $pattern = explode("[AND]", $pattern);
-            $pattern = array_map("trim", $pattern);
-            $pattern = array_filter($pattern);
-
-            $allMatched = true;
-            foreach ($pattern as $_pattern) {
-                if (!preg_match("~" . $_pattern . "~", $input)) {
-                    $allMatched = false;
-                    break;
-                }
-            }
-
-            if ($allMatched) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
